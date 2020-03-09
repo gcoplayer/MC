@@ -1,0 +1,135 @@
+## Michael Christian and Alfredo Huerta
+## Project Checkpoint 04
+
+# Packages to install:
+# install.packages("tidyverse")
+# install.packages("skimr")
+# install.packages("Hmisc")
+# install.packages("ggcorrplot")
+# install.packages("ggplot2")
+# install.packages("plyr")
+# install.packages("plm")
+# install.packages("RColorBrewer")
+
+library(tidyverse)
+library(skimr)
+library(Hmisc)
+library(ggcorrplot)
+library(ggplot2)
+library(plyr)
+library(plm)
+library(RColorBrewer)
+
+## Link to data: 
+## https://www.kaggle.com/tbsteal/canadian-car-accidents-19942014/data
+
+trafficroad <- read.csv('NCDB_1999_to_2014.csv', header = TRUE)
+## To look at the table:  view(trafficroad)
+summary(trafficroad)
+
+## In this project, we want to observe the effects of weather on the severity of car collisons.
+## We would also observe the frequency of these crashes on a yearly basis.
+## To look at overview of Column "Weather" in data:
+skim(trafficroad)
+table(trafficroad$C_WTHR)
+skim(filter(trafficroad, C_WTHR=="1"))  # clear and sunny weather
+skim(filter(trafficroad, C_WTHR=="2"))  # cloudy but no precipitation
+skim(filter(trafficroad, C_WTHR=="3"))  # raining
+skim(filter(trafficroad, C_WTHR=="4"))  # snowing
+skim(filter(trafficroad, C_WTHR=="5"))  # freezing rain, hail
+skim(filter(trafficroad, C_WTHR=="6"))  # visibility limitation (e.g. fog, smog, dust, smoke)
+skim(filter(trafficroad, C_WTHR=="7"))  # strong wind
+
+## Remove unknown weathers and Rearrange the weather column
+trafficroad <- trafficroad[!is.na(as.numeric(as.character(trafficroad$C_WTHR))),]
+trafficroad <- arrange(trafficroad, C_WTHR)
+
+## Remove unknown fatality of crashes
+trafficroad <- trafficroad[!is.na(as.numeric(as.character(trafficroad$C_SEV))),]
+## C_SEV = 1 refers to fatal crash
+## C_SEV = 2 refers to non-fatal crash
+
+## Since our data is too large, 
+## we decided to view them by year.
+TF1999 <- trafficroad[which(trafficroad$C_YEAR=='1999'),] # Year 1999
+TF2000 <- trafficroad[which(trafficroad$C_YEAR=='2000'),] # Year 2000
+TF2001 <- trafficroad[which(trafficroad$C_YEAR=='2001'),] # Year 2001
+TF2002 <- trafficroad[which(trafficroad$C_YEAR=='2002'),] # Year 2002
+TF2003 <- trafficroad[which(trafficroad$C_YEAR=='2003'),] # Year 2003
+TF2004 <- trafficroad[which(trafficroad$C_YEAR=='2004'),] # Year 2004
+TF2005 <- trafficroad[which(trafficroad$C_YEAR=='2005'),] # Year 2005
+TF2006 <- trafficroad[which(trafficroad$C_YEAR=='2006'),] # Year 2006
+TF2007 <- trafficroad[which(trafficroad$C_YEAR=='2007'),] # Year 2007
+TF2008 <- trafficroad[which(trafficroad$C_YEAR=='2008'),] # Year 2008
+TF2009 <- trafficroad[which(trafficroad$C_YEAR=='2009'),] # Year 2009
+TF2010 <- trafficroad[which(trafficroad$C_YEAR=='2010'),] # Year 2010
+TF2011 <- trafficroad[which(trafficroad$C_YEAR=='2011'),] # Year 2011
+TF2012 <- trafficroad[which(trafficroad$C_YEAR=='2012'),] # Year 2012
+TF2013 <- trafficroad[which(trafficroad$C_YEAR=='2013'),] # Year 2013
+TF2014 <- trafficroad[which(trafficroad$C_YEAR=='2014'),] # Year 2014
+
+## Due to thousands of separators, the data will have been read as 'non-numeric'.
+## Thus, we need to convert the weather column to numeric using 'as,numeric'.
+TF1999$C_WTHR <- as.numeric(TF1999$C_WTHR)
+TF2000$C_WTHR <- as.numeric(TF2000$C_WTHR)
+TF2001$C_WTHR <- as.numeric(TF2001$C_WTHR)
+TF2002$C_WTHR <- as.numeric(TF2002$C_WTHR)
+TF2003$C_WTHR <- as.numeric(TF2003$C_WTHR)
+TF2004$C_WTHR <- as.numeric(TF2004$C_WTHR)
+TF2005$C_WTHR <- as.numeric(TF2005$C_WTHR)
+TF2006$C_WTHR <- as.numeric(TF2006$C_WTHR)
+TF2007$C_WTHR <- as.numeric(TF2007$C_WTHR)
+TF2008$C_WTHR <- as.numeric(TF2008$C_WTHR)
+TF2009$C_WTHR <- as.numeric(TF2009$C_WTHR)
+TF2010$C_WTHR <- as.numeric(TF2010$C_WTHR)
+TF2011$C_WTHR <- as.numeric(TF2011$C_WTHR)
+TF2012$C_WTHR <- as.numeric(TF2012$C_WTHR)
+TF2013$C_WTHR <- as.numeric(TF2013$C_WTHR)
+TF2014$C_WTHR <- as.numeric(TF2014$C_WTHR)
+
+## Observing the frequency of car accidents relating to weather:
+hist(TF1999$C_WTHR) # year 1999
+hist(TF2000$C_WTHR) # year 2000
+hist(TF2001$C_WTHR) # year 2001
+hist(TF2002$C_WTHR) # year 2002
+hist(TF2003$C_WTHR) # year 2003
+hist(TF2004$C_WTHR) # year 2004
+hist(TF2005$C_WTHR) # year 2005
+hist(TF2006$C_WTHR) # year 2006
+hist(TF2007$C_WTHR) # year 2007
+hist(TF2008$C_WTHR) # year 2008
+hist(TF2009$C_WTHR) # year 2009
+hist(TF2010$C_WTHR) # year 2010
+hist(TF2011$C_WTHR) # year 2011
+hist(TF2012$C_WTHR) # year 2012
+hist(TF2013$C_WTHR) # year 2013
+hist(TF2014$C_WTHR) # year 2014
+
+## Next, we want to find the relationship between weather and the severity of car crash for the year 1999.
+## To prepare the data, we convert the 'Severity' column from a numeric to a factor variable:
+TF1999$C_SEV <- as.factor(TF1999$C_SEV)
+## Then, we use ggplot to visualize our findings.
+ggplot(data = TF1999,     # Data Layer
+       aes(x=C_WTHR, fill=C_SEV)) +  # Aesthetics Layer
+  geom_bar() + # Geometry Layer
+  coord_flip() + # Coordinates Layer
+  facet_wrap(~C_SEV) +  # facets
+  stat_bin(binwidth=0.5, color="blue") + # Statistics Function
+  theme(legend.position="none") + # Theme
+  scale_fill_brewer(palette="PuRd") # Change Color of a discrete palette 
+## This visualization can be used to view the plots for other years by replacing "TF1999" with other data models.
+
+## Finally, we use regression analysis to establish the relationship between the weather and severity of car crash.
+TF1999$C_SEV <- as.numeric(TF1999$C_SEV)
+TF1999LM <- lm(C_SEV ~ C_WTHR, data=TF1999)
+round(exp(coef(TF1999LM)),digits=2) # To compute factor changes
+print(TF1999LM)
+## Note that this regression analysis can also be used for other years' model.
+
+## Now we compare regression model year 1999 to regression model year 2014.
+TF2014LM <- lm(C_SEV ~ C_WTHR, data=TF2014)
+round(exp(coef(TF2014LM)),digits=2) # To compute factor changes
+print(TF2014LM)
+
+summary(TF1999LM)
+summary(TF2014LM)
